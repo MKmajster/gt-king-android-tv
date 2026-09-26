@@ -1,5 +1,7 @@
 # Android 15 TV for the Beelink GT-King — `galilei`
 
+**English** · [Polski](README.pl.md) · [简体中文](README.zh-CN.md)
+
 The Beelink GT-King (Amlogic **S922X**, 4×Cortex-A73 @2.2 GHz + 2×A53, Mali-G52, 4 GB LPDDR4,
 64 GB eMMC, AP6275S Wi-Fi 5/BT 5) never got anything newer than Android 9 — not from Beelink, not
 from the community ROMs built on the stock firmware. This repository is the complete bring-up of
@@ -51,7 +53,7 @@ unit's PHY is dead in hardware).
 
 | System | Emulator | Result |
 |---|---|---|
-| PlayStation 2 | ARMSX2 (Vulkan, native resolution, 16:9 + no-interlace patches, 8x AF, sharpening) | God of War (PAL) 50/50 fps, Crash Bandicoot: The Wrath of Cortex 50 fps |
+| PlayStation 2 | ARMSX2 (Vulkan, native resolution, 16:9 + no-interlace patches, 8x AF, sharpening) | God of War (PAL) 50/50 fps; Crash Bandicoot: The Wrath of Cortex 38–50 fps in play with per-game speed hacks (EE cycle rate/skip, GPU palette conversion) — the heaviest game tested |
 | PSP | PPSSPP standalone (Vulkan, 2x) | God of War: Ghost of Sparta 60/60 fps |
 | PlayStation | RetroArch SwanStation (5x = 1080p, PGXP, 24-bit colour, 16:9) | 50/50 fps |
 | SNES / NES | RetroArch Snes9x / FCEUmm with CRT shader and run-ahead | full speed |
@@ -131,6 +133,16 @@ bash lineage/scripts/v2-build-dhd.sh             # AP6275S driver module
 bash lineage/scripts/v2-build-dtb.sh && bash lineage/scripts/v2-make-multidtb.sh
 TAG=final bash lineage/scripts/v2-make-m1.sh     # -> aml_upgrade_package_v2-final.img
 ```
+
+## Support
+
+A hobby project, free and open. If it brought your GT-King back from the drawer, you can buy me a
+coffee on [Ko-fi](https://ko-fi.com/mkmajster) (card or PayPal) — entirely optional.
+
+Test reports help just as much: Ethernet, 4K/HDR TVs and HDMI-CEC are still untested.
+
+Another Android TV box, or a project that needs a similar bring-up? I am open to taking on a new
+project or helping with an existing one — open an issue here or send me a PM on XDA.
 
 ## Credits
 
