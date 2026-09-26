@@ -1,0 +1,24 @@
+backup/
+apps/
+*.img
+*.zip
+*.apk
+overlays/gtk-look/fonts-src/
+overlays/*/system/
+.DS_Store
+research/device/*.bin
+research/device/*.dtb
+research/device/config.gz
+tools/
+research/device/box-pull/vendor-etc-bluetooth/*.hcd
+research/device/box-pull/vendor-etc-wifi-4359/*.bin
+lineage/out/
+__pycache__/
+
+# personal box set-up (commercial APKs, BIOS paths, artwork) - never publish
+personal/
+
+# downloaded donor ROMs / release archives (large, redistributed separately)
+downloads/
+*.7z
+*.7z.0*

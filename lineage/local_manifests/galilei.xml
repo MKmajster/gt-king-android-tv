@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- Beelink GT-King PRO (galilei) port: Amlogic G12 family trees, LineageOS 22.2 -->
+  <project name="LineageOS/android_device_amlogic_common" path="device/amlogic/common" remote="github" revision="lineage-22.2" />
+  <project name="LineageOS/android_device_amlogic_g12-common" path="device/amlogic/g12-common" remote="github" revision="lineage-22.2" />
+  <project name="LineageOS/android_device_amlogic_sepolicy" path="device/amlogic/sepolicy" remote="github" revision="lineage-22.2" />
+  <project name="LineageOS/android_device_radxa_radxa02pro" path="device/radxa/radxa02pro" remote="github" revision="lineage-22.2" />
+  <project name="LineageOS/android_kernel_amlogic_linux-4.9" path="kernel/amlogic/linux-4.9" remote="github" revision="lineage-22.2" />
+  <project name="LineageOS/android_hardware_amlogic_kernel-modules_dhd-driver" path="kernel/amlogic/kernel-modules/dhd-driver" remote="github" revision="lineage-22.2" />
+  <project name="LineageOS/android_hardware_amlogic_kernel-modules_mali-driver" path="kernel/amlogic/kernel-modules/mali-driver" remote="github" revision="lineage-22.2" />
+  <project name="LineageOS/android_hardware_amlogic_kernel-modules_media" path="kernel/amlogic/kernel-modules/media-4.9" remote="github" revision="lineage-22.2" />
+  <project name="LineageOS/android_hardware_amlogic_kernel-modules_optee" path="kernel/amlogic/kernel-modules/optee" remote="github" revision="lineage-22.2" />
+  <project name="LineageOS/android_hardware_amlogic_u-boot" path="hardware/amlogic/u-boot" remote="github" revision="lineage-22.2" />
+  <project name="LineageOS/android_hardware_amlogic_u-boot_build" path="hardware/amlogic/u-boot_build" remote="github" revision="lineage-22.2" />
+  <project name="LineageOS/android_hardware_amlogic_tools_dtbtool" path="hardware/amlogic/tools/dtbtool" remote="github" revision="lineage-22.2" />
+  <project name="LineageOS/android_hardware_amlogic_tools_imagepacker" path="hardware/amlogic/tools/imagepacker" remote="github" revision="lineage-22.2" />
+  <project name="LineageOS/android_hardware_amlogic_tools_respacker" path="hardware/amlogic/tools/respacker" remote="github" revision="lineage-22.2" />
+  <project name="TheMuppets/proprietary_vendor_amlogic_g12-common" path="vendor/amlogic/g12-common" remote="github" revision="lineage-22.2" />
+  <project name="TheMuppets/proprietary_vendor_radxa_radxa02pro" path="vendor/radxa/radxa02pro" remote="github" revision="lineage-22.2" />
+</manifest>

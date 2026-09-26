@@ -1,0 +1,39 @@
+# galilei (Beelink GT-King) device init
+#
+# 0. Video decoder microcode is loaded by the kernel, not through OP-TEE (no TEE userspace in this
+#    build, see BoardConfig.mk tee.disable_flag=1). The command line is the primary switch; this
+#    write covers a bootloader that drops the boot image command line.
+on early-init
+    write /sys/module/tee/parameters/disable_flag 1
+
+# 1. The Lineage power HAL (libperfmgr) parses powerhint.json at start but only
+#    runs its hint looper after vendor.powerhal.init=1; nothing in g12-common
+#    sets it, so every hint (INTERACTIVE -> /sys/power/early_suspend_trigger,
+#    FIXED_PERFORMANCE, INTERACTION) was silently dropped ("NodeLooperThread is
+#    not running" in logcat). Set it once the system is up.
+on property:sys.boot_completed=1
+    setprop vendor.powerhal.init 1
+
+# 2. Deep suspend is off by default: the kernel PM path is exercised only
+#    through the early_suspend_trigger flow (HDMI off on screen-off), and
+#    wake-up from a real suspend needs the IR wake key in BL30, which is not
+#    configured yet. A permanent kernel wakelock keeps SystemSuspend from ever
+#    entering mem; "sleep" then means screen/HDMI off with the box idling.
+#    Set persist.vendor.galilei.deepsleep=1 to release it and test deep sleep.
+on boot
+    write /sys/power/wake_lock galilei_nosuspend
+
+on property:persist.vendor.galilei.deepsleep=1
+    write /sys/power/wake_unlock galilei_nosuspend
+
+# 3. Screen off = HDMI signal off. The kernel stays up (wakelock above), so the hdmitx
+#    early-suspend/late-resume path that froze the SoC on resume is never used; only the TMDS
+#    transmitter is switched. The TV/monitor sees "no signal" and goes to standby on its own
+#    (CEC TVs are also sent <Standby> by HdmiControlService); any remote key wakes the box and
+#    the signal comes back. debug.tracing.screen_state is published by the display power
+#    controller: 1 = off, 2 = on (verified 2026-09-25: store_phy 0/1, monitor loses/regains sync).
+on property:debug.tracing.screen_state=1
+    write /sys/class/amhdmitx/amhdmitx0/phy 0
+
+on property:debug.tracing.screen_state=2
+    write /sys/class/amhdmitx/amhdmitx0/phy 1

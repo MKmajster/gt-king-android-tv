@@ -1,0 +1,22 @@
+//
+// SPDX-FileCopyrightText: The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+prebuilt_etc {
+    name: "init.amlogic.wifi_buildin.rc",
+    src: "init.amlogic.wifi_buildin.rc",
+    sub_dir: "init/hw",
+    soc_specific: true,
+}
+
+// /vendor/etc/init/*.rc is parsed by init on its own; /vendor/etc/init/hw/ only holds files that
+// init.rc imports explicitly (init.${ro.hardware}.rc = init.amlogic.rc), so this one must NOT
+// live in hw/ - it was silently ignored there (2026-09-25 first flash: no wakelock, no
+// vendor.powerhal.init).
+prebuilt_etc {
+    name: "init.galilei.rc",
+    src: "init.galilei.rc",
+    sub_dir: "init",
+    soc_specific: true,
+}

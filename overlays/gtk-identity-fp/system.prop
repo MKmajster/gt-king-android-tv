@@ -1,0 +1,5 @@
+# Note: ro.vendor.build.fingerprint may be overridden by /vendor/build.prop; check with getprop after install.
+ro.build.fingerprint=google/sabrina/sabrina:14/UTTC.241218.008.H1/13427172:user/release-keys
+ro.vendor.build.fingerprint=google/sabrina/sabrina:14/UTTC.241218.008.H1/13427172:user/release-keys
+ro.build.type=user
+ro.build.tags=release-keys

@@ -1,0 +1,6 @@
+id=gtk-hosts
+name=GT-King PRO: adblock hosts
+version=1.0
+versionCode=1
+author=MKmajster
+description=StevenBlack unified hosts replacing /system/etc/hosts.

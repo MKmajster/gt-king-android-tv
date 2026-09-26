@@ -1,0 +1,5 @@
+id=gtk-launcherx
+name=GT-King PRO: Google TV Home as priv-app
+version=1.0
+author=MKmajster
+description=Google TV Home (launcherx 1.0.436578635, last Android 9 build) installed to /system/priv-app so it gets ACCESS_ALL_EPG_DATA for the Home tab.

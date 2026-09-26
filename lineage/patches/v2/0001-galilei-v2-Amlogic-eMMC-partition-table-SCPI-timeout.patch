@@ -1,0 +1,166 @@
+From 7a63c688b3a2d0c17b11c1619699f18fa3691fe5 Mon Sep 17 00:00:00 2001
+From: MKmajster <72458200+MKmajster@users.noreply.github.com>
+Date: Sat, 26 Sep 2026 09:18:57 +0200
+Subject: [PATCH] galilei v2: Amlogic eMMC partition table; SCPI timeout;
+ stmmac pm notifier; meson_wdt; hci_bcm setup; suspend unblock probing
+
+---
+ drivers/amlogic/mailbox/scpi_protocol.c           |  6 +++++-
+ drivers/amlogic/mmc/emmc_partitions.c             | 10 +++++-----
+ drivers/amlogic/watchdog/meson_wdt.c              |  3 +++
+ drivers/bluetooth/hci_bcm.c                       |  7 +++++--
+ drivers/mmc/card/block.c                          |  5 +++++
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |  4 ++++
+ kernel/power/suspend.c                            |  7 +++++++
+ 7 files changed, 34 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/amlogic/mailbox/scpi_protocol.c b/drivers/amlogic/mailbox/scpi_protocol.c
+index f2185e5c..a5726c62 100644
+--- a/drivers/amlogic/mailbox/scpi_protocol.c
++++ b/drivers/amlogic/mailbox/scpi_protocol.c
+@@ -184,7 +184,11 @@ static int send_scpi_cmd(struct scpi_data_buf *scpi_buf, bool high_priority)
+ 		goto free_channel;
+ 	}
+ 
+-	wait_for_completion(&scpi_buf->complete);
++	if (!wait_for_completion_timeout(&scpi_buf->complete, msecs_to_jiffies(2000))) {
++		pr_err("scpi: cmd 0x%x: no answer from BL30 in 2 s (galilei)\n", data->cmd);
++		status = SCPI_ERR_TIMEOUT;
++		goto free_channel;
++	}
+ 	status = *(u32 *)(data->rx_buf); /* read first word */
+ 
+ free_channel:
+diff --git a/drivers/amlogic/mmc/emmc_partitions.c b/drivers/amlogic/mmc/emmc_partitions.c
+index ea01e71e..84a98d7b 100644
+--- a/drivers/amlogic/mmc/emmc_partitions.c
++++ b/drivers/amlogic/mmc/emmc_partitions.c
+@@ -927,7 +927,7 @@ static int mmc_read_partition_tbl(struct mmc_card *card,
+ 	memset(pt_fmt, 0, sizeof(struct mmc_partitions_fmt));
+ 	memset(buf, 0, blk_size);
+ 
+-#if defined(CONFIG_ARCH_MESON64_ODROID_COMMON)
++#if defined(GALILEI_HARDKERNEL_PARTITIONS_DISABLED)
+ 	/* LBA unit */
+ 	start_blk = 2048;
+ #else
+@@ -1145,7 +1145,7 @@ static int add_emmc_partition(struct gendisk *disk,
+ 	uint64_t offset, size, cap;
+ 	struct partitions *pp;
+ 	struct proc_dir_entry *proc_card;
+-#if defined(CONFIG_ARCH_MESON64_ODROID_COMMON)
++#if defined(GALILEI_HARDKERNEL_PARTITIONS_DISABLED)
+ 	int shift = 0;
+ #else
+ 	int shift = 9;
+@@ -1157,7 +1157,7 @@ static int add_emmc_partition(struct gendisk *disk,
+ 	cap = get_capacity(disk); /* unit:512 bytes */
+ 	for (i = 0; i < pt_fmt->part_num; i++) {
+ 		pp = &(pt_fmt->partitions[i]);
+-#if defined(CONFIG_ARCH_MESON64_ODROID_COMMON)
++#if defined(GALILEI_HARDKERNEL_PARTITIONS_DISABLED)
+ 		if (pp->name[0] == '@') {
+ 			/* It's hiden partition */
+ 			continue;
+@@ -1200,7 +1200,7 @@ static int add_emmc_partition(struct gendisk *disk,
+ 	return 0;
+ }
+ 
+-#if !defined(CONFIG_ARCH_MESON64_ODROID_COMMON)
++#if !defined(GALILEI_HARDKERNEL_PARTITIONS_DISABLED)
+ static int is_card_emmc(struct mmc_card *card)
+ {
+ 	struct mmc_host *mmc = card->host;
+@@ -1373,7 +1373,7 @@ int aml_emmc_partition_ops(struct mmc_card *card, struct gendisk *disk)
+ 
+ 	pr_info("Enter %s\n", __func__);
+ 
+-#if !defined(CONFIG_ARCH_MESON64_ODROID_COMMON)
++#if !defined(GALILEI_HARDKERNEL_PARTITIONS_DISABLED)
+ 	if (is_card_emmc(card) == 0) /* not emmc, nothing to do */
+ 		return 0;
+ #endif
+diff --git a/drivers/amlogic/watchdog/meson_wdt.c b/drivers/amlogic/watchdog/meson_wdt.c
+index 30225a7b..a25be4d3 100644
+--- a/drivers/amlogic/watchdog/meson_wdt.c
++++ b/drivers/amlogic/watchdog/meson_wdt.c
+@@ -269,6 +269,9 @@ static int aml_wtd_pm_notify(struct notifier_block *nb, unsigned long event,
+ 	}
+ 	if (event == PM_POST_SUSPEND) {
+ 		if (wdev->is_running) {
++			/* the count kept running while disabled: reload it before
++			 * enabling, or the SoC resets ~immediately after resume */
++			reset_watchdog(wdev);
+ 			enable_watchdog(wdev);
+ 			dev_info(wdev->dev,
+ 			 "pm_notify: enable watchdog, event = %lu\n", event);
+diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
+index 25042c79..5852a2dc 100644
+--- a/drivers/bluetooth/hci_bcm.c
++++ b/drivers/bluetooth/hci_bcm.c
+@@ -422,8 +422,11 @@ static int bcm_setup(struct hci_uart *hu)
+ 	if (err)
+ 		return err;
+ 
+-	err = bcm_request_irq(bcm);
+-	if (!err)
++	/* galilei: a plain HCI UART line discipline (btuart-attach) has no bcm platform device ->
++	 * bcm_request_irq() = -ENODEV. That only means no host-wake irq / sleep setup, not a failed
++	 * setup (upstream ignores it); returning it left hci0 in HCI_SETUP forever, never
++	 * initialised nor announced to mgmt, and the btlinux HAL waited for it endlessly. */
++	if (!bcm_request_irq(bcm))
+ 		err = bcm_setup_sleep(hu);
+ 
+ 	return err;
+diff --git a/drivers/mmc/card/block.c b/drivers/mmc/card/block.c
+index caa091cb..4f0a2f5e 100644
+--- a/drivers/mmc/card/block.c
++++ b/drivers/mmc/card/block.c
+@@ -3049,6 +3049,11 @@ static int mmc_blk_probe(struct mmc_card *card)
+ 	if (mmc_add_disk(md))
+ 		goto out;
+ 
++#ifdef CONFIG_AMLOGIC_MMC
++	/* galilei: Amlogic reserved-area partition table (as the stock kernel does) */
++	aml_emmc_partition_ops(card, md->disk);
++#endif
++
+ 	list_for_each_entry(part_md, &md->part, part) {
+ 		if (mmc_add_disk(part_md))
+ 			goto out;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 7c837989..45036bf7 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3344,6 +3344,10 @@ int stmmac_dvr_probe(struct device *device,
+ 	moniter_tx_wq = create_singlethread_workqueue("eth_moniter_tx_wq");
+ 	INIT_DELAYED_WORK(&moniter_tx_worker, moniter_tx_handler);
+ 	/*register pm notify callback*/
++	/* galilei: a re-probe (dwmac-generic after dwmac-meson failed with no PHY) must not register
++	 * this static block twice - that self-loops the pm notifier chain and every later
++	 * register_pm_notifier() spins forever (PID 1 stuck in mmc_add_host at boot). */
++	unregister_pm_notifier(&suspend_pm_nb);
+ 	result = register_pm_notifier(&suspend_pm_nb);
+ 	if (result) {
+ 		unregister_pm_notifier(&suspend_pm_nb);
+diff --git a/kernel/power/suspend.c b/kernel/power/suspend.c
+index 8b7744ab..75957958 100644
+--- a/kernel/power/suspend.c
++++ b/kernel/power/suspend.c
+@@ -316,6 +316,13 @@ static int suspend_prepare(suspend_state_t state)
+ 
+ 	suspend_stats.failed_freeze++;
+ 	dpm_save_failed_step(SUSPEND_FREEZE);
++#ifdef CONFIG_AMLOGIC_MODIFY
++	/* galilei: device_block_probing() above is undone only by suspend_finish()/dpm_complete();
++	 * a suspend aborted while freezing tasks (pending wakeup - every attempt with Wi-Fi up)
++	 * left defer_all_probes set, so no device probed again until reboot (USB gamepads,
++	 * sticks, re-bound hubs: 'Unsupported device', bind -ENODEV). */
++	device_unblock_probing();
++#endif
+  Finish:
+ 	__pm_notifier_call_chain(PM_POST_SUSPEND, nr_calls, NULL);
+ 	pm_restore_console();
+-- 
+2.43.0
+

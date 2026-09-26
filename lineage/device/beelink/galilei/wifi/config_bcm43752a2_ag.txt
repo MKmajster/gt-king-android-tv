@@ -1,0 +1,4 @@
+ccode=SG
+regrev=0
+dhd_idletime=0
+war=0x11

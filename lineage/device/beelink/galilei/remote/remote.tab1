@@ -1,0 +1,64 @@
+# Beelink GT-King IR remote: the stock vendor remote-mouse31.tab (NEC custom code 0x7f80,
+# custom_name nec-cursor-31) - the only table in the stock vendor that matches this remote
+# (verified 2026-09-24 on the console: frames 0x..7f80). The old amlogic-remote-1 (0xfb04) is
+# kept as remote-amlogic-fb04.tab.
+#*********************************************************************************************************
+#this file is used to store key map table
+# custom_name:	  name of map table
+# custom_code:	  custom code for remote device
+# release_delay	  unit:ms.release will report from kernel to user layer after this period of time
+#			  from press or repeat triggered.
+###PARAS FOR MOUSE MODE:
+# fn_key_scancode: scancode of fn key which used to swith mode
+# cursor_left_scancode: scancode of left key
+# cursor_right_scancode:  scancode of right key
+# cursor_up_scancode: scancode of up key
+# cursor_down_scancode: scancode of down key
+# cursor_ok_scancode: scancode of ok key
+#************************************************************************************************************* 
+custom_name = nec-cursor-31
+custom_code = 0x7f80
+release_delay = 80
+
+fn_key_scancode = 0x52
+cursor_left_scancode = 0x25
+cursor_right_scancode = 0x27
+cursor_up_scancode = 0x26
+cursor_down_scancode = 0x28
+cursor_ok_scancode = 0x0d
+
+key_begin
+	0x4d 113
+	0x56 114
+	0x4e 115
+	0x25 105
+	0x26 103
+	0x27 106
+	0x28 108
+	0x0d 97
+	0x52 63
+	0x1b 158 
+	0x53 102
+	0x51 116
+	0x49 139
+	0x31 2
+	0x32 3
+	0x33 4
+	0x34 5
+	0x35 6
+	0x36 7
+	0x37 8
+	0x38 9
+	0x39 10
+	0x30 11
+	0x58 188
+	0x44 14
+	0xbd 122
+	0xbb 123
+	0x09 192
+	0x11 189
+	0x4f 191
+	0x40 67
+	0x41 177
+	0x42 178
+key_end

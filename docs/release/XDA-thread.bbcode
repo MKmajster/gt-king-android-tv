@@ -1,0 +1,100 @@
+[CENTER][SIZE=6][B]LineageOS / Android 15 TV for the Beelink GT-King (galilei)[/B][/SIZE]
+[SIZE=4]v1 — LineageOS 22.2, 32-bit · v2 — 64-bit (arm64 + arm) · Google apps for Android TV included[/SIZE][/CENTER]
+
+[CODE]
+Your warranty is now void. I am not responsible for bricked devices, dead SD cards or
+anything else that happens to your box. Read the whole post before flashing. Flashing
+replaces the whole eMMC. You do it at your own risk.
+[/CODE]
+
+[SIZE=5][B]Introduction[/B][/SIZE]
+Beelink stopped at Android 9 (last firmware 2022-04-01) and every community ROM for this box so far is a repackaged stock 9. This thread brings a current Android TV to the plain Beelink [B]GT-King[/B] (black, Amlogic S922X, 4 GB / 64 GB, board GTKing-D4X16 rev 2.0–4.0). Not for the GT-King Pro (different DTB, Wi-Fi module and remote table).
+
+Two builds are available:
+[LIST]
+[*][B]v1[/B] — LineageOS 22.2 (Android 15 TV), 32-bit userspace (like the stock firmware), Google apps included.
+[*][B]v2[/B] — Android 15 TV with a [B]64-bit[/B] userspace, based on voodik's LineageOS 22.1 ATV for the ODROID-N2 (same S922X SoC) with GT-King kernel, device tree and driver fixes. [B]Take v2 if you want emulation (PS2, GameCube/Wii).[/B]
+[/LIST]
+Both keep the stock Beelink bootloader (its BL2 holds the LPDDR4 training) and chain-load a LineageOS u-boot from a separate partition, so the box can always go back to stock.
+
+[SIZE=5][B]Screenshots (v2)[/B][/SIZE]
+[IMG]https://raw.githubusercontent.com/MKmajster/gt-king-android-tv/main/docs/screenshots/home.png[/IMG]
+[IMG]https://raw.githubusercontent.com/MKmajster/gt-king-android-tv/main/docs/screenshots/about.png[/IMG]
+[IMG]https://raw.githubusercontent.com/MKmajster/gt-king-android-tv/main/docs/screenshots/ps2.jpg[/IMG]
+[IMG]https://raw.githubusercontent.com/MKmajster/gt-king-android-tv/main/docs/screenshots/psp.jpg[/IMG]
+[IMG]https://raw.githubusercontent.com/MKmajster/gt-king-android-tv/main/docs/screenshots/psx.jpg[/IMG]
+
+[SIZE=5][B]What works[/B][/SIZE]
+[LIST]
+[*]Android TV home screen and setup with the stock [B]infrared remote[/B] (stock key table), Play Store (TV)
+[*]Wi-Fi 5 GHz (AP6275S); v2 tested with sustained 8 GB transfers. Bluetooth
+[*]Hardware video decoding H.264 / HEVC / VP9 — YouTube and SmartTube play 4K60 VP9 without dropped frames
+[*]HDMI audio (L-PCM). Tested on a 1080p60 TV; 4K output modes and HDMI-CEC TV control are present but untested — reports welcome
+[*]USB host (keyboards, mice, gamepads, sticks; in v2 hot-plug also works after standby), microSD, RTC
+[*]Thermal management on both CPU clusters; in v2 the GPU clock is pinned for games
+[*]Standby: power key = screen off, instant wake with the remote
+[*]ADB over network
+[/LIST]
+
+[SIZE=5][B]v1 (32-bit) vs v2 (64-bit)[/B][/SIZE]
+Measured on the test unit (1080p60 TV):
+[TABLE]
+[TR][TH][/TH][TH]v1 (32-bit)[/TH][TH]v2 (64-bit)[/TH][/TR]
+[TR][TD]PlayStation 2[/TD][TD]not possible (no 32-bit PS2 emulator)[/TD][TD]ARMSX2: God of War (PAL) 50/50 fps, 16:9 and no-interlace patches, 8x AF, sharpening[/TD][/TR]
+[TR][TD]GameCube / Wii[/TD][TD]not possible (Dolphin is 64-bit only)[/TD][TD]Dolphin installs (not tested with a game)[/TD][/TR]
+[TR][TD]PlayStation 1[/TD][TD]PCSX-ReARMed, native resolution[/TD][TD]SwanStation 5x (1080p), PGXP, 24-bit colour, 16:9 — 50/50 fps[/TD][/TR]
+[TR][TD]PSP[/TD][TD]32-bit libretro core[/TD][TD]PPSSPP (Vulkan) 2x — God of War: Ghost of Sparta 60/60 fps[/TD][/TR]
+[TR][TD]GPU driver[/TD][TD]Mali r32p1, 32-bit[/TD][TD]Mali r51p0, lib64, Vulkan 1.3, GLES 3.2[/TD][/TR]
+[/TABLE]
+Honest notes: the main gain of v2 is what cannot run on 32-bit at all (a PS2 emulator reserves ~8 GB of address space, Dolphin is arm64-only). There is no same-game fps comparison between v1 and v2. The PSP result owes a lot to the standalone Vulkan PPSSPP. PS2 at full speed also needs the Mali clock pinned at 800 MHz (v2 does this at boot). PS2 upscaling is beyond the Mali-G52 — games run at native resolution with widescreen patches.
+
+[SIZE=5][B]Known issues — please read[/B][/SIZE]
+[LIST]
+[*][B]Widevine L3 only[/B] — the GT-King never had an L1 keybox (the stock firmware was L3 too). Streaming apps play in SD.
+[*][B]Netflix[/B]: the Android TV app refuses uncertified devices (error -13); the Netflix phone app installs and runs.
+[*][B]Chromecast built-in[/B] (receiver) cannot register — it needs a per-device certificate that only certified boxes have. Casting from apps on the box works; AirPlay/Cast receiver apps (e.g. AirScreen) work.
+[*][B]Standby[/B] keeps the SoC awake (screen and HDMI off, instant wake); deep sleep is not used.
+[*][B]Ethernet untested[/B] — the test unit's PHY is dead in hardware. Reports welcome.
+[*]ADB over USB does not work (use ADB over network).
+[*]Not certified by Google: register the device at google.com/android/uncertified if the Play Store complains.
+[*][B]v2[/B]: once on the test unit the first boot after flashing came up without the chain-load hook (the box switched itself off after ~12 s). The fix is one command over the internal UART header (see INSTALL.md). Please report if it happens to you.
+[*][B]v2[/B]: userdebug build with test-keys; the device model shows lineage_odroidn2.
+[*]PAL games (50 fps) on a 60 Hz-only TV judder slightly — use a game's 60 Hz mode where available.
+[/LIST]
+
+[SIZE=5][B]Downloads[/B][/SIZE]
+All files: [URL='https://github.com/MKmajster/gt-king-android-tv/releases/latest']GitHub Releases[/URL]
+[LIST]
+[*][B]v2 (64-bit, Google apps)[/B]: aml_upgrade_package_v2-final.7z
+[*][B]v1 (32-bit, Google apps)[/B]: aml_upgrade_package_galilei-los22.2-gapps.7z
+[*][B]Back to stock[/B] (Beelink 2022-04-01 firmware repacked): aml_upgrade_package_stock-restore+stockbl.7z
+[/LIST]
+SHA-256 sums of the archives and the packages: SHA256SUMS.txt in the release. Unpack with 7-Zip.
+
+[SIZE=5][B]Installation (short)[/B][/SIZE]
+[LIST=1]
+[*]Amlogic USB Burning Tool 2.2.0 (run as administrator) → File → Import image → the unpacked .img → [B]Start[/B]. Keep "Erase flash" ticked and "Erase bootloader" unticked.
+[*]Connect a USB-A ↔ USB-A cable to the box's [B]USB 2.0 (OTG) port[/B] (next to the SD slot) while the box is running, then from a running Android: [ICODE]adb connect <box-ip>:5555[/ICODE] and [ICODE]adb reboot update[/ICODE]. The tool flashes for 5–8 minutes.
+[*]Unplug the cable, power-cycle the box, finish the setup with the remote.
+[/LIST]
+Full instructions, recovery paths and the serial-console fallback: [URL='https://github.com/MKmajster/gt-king-android-tv/blob/main/docs/release/INSTALL.md']INSTALL.md[/URL].
+
+[SIZE=5][B]Source code[/B][/SIZE]
+[LIST]
+[*]Device tree, DTS, bootloader chain, vendor additions, flashing tools: [URL='https://github.com/MKmajster/gt-king-android-tv']github.com/MKmajster/gt-king-android-tv[/URL]
+[*]v1 kernel (GPL-2.0): [URL='https://github.com/LineageOS/android_kernel_amlogic_linux-4.9/tree/lineage-22.2']LineageOS android_kernel_amlogic_linux-4.9, branch lineage-22.2[/URL] + [URL='https://github.com/MKmajster/gt-king-android-tv/tree/main/lineage/patches']lineage/patches/*.patch[/URL], DTS and config fragment in [URL='https://github.com/MKmajster/gt-king-android-tv/tree/main/lineage/kernel']lineage/kernel/[/URL]
+[*]v2 kernel (GPL-2.0): [URL='https://github.com/voodik/android_kernel_voodik_odroidg12/tree/660a3bebdf92']voodik's android_kernel_voodik_odroidg12, commit 660a3bebdf92[/URL] + [URL='https://github.com/MKmajster/gt-king-android-tv/tree/main/lineage/patches/v2']lineage/patches/v2/[/URL], DTS in [URL='https://github.com/MKmajster/gt-king-android-tv/tree/main/lineage/kernel/dts/v2']lineage/kernel/dts/v2/[/URL]
+[/LIST]
+
+[SIZE=5][B]Credits[/B][/SIZE]
+LineageOS, the Amlogic g12-common maintainers, [B]voodik[/B] (LineageOS ATV for the ODROID-N2 and its kernel — the whole 64-bit userspace of v2 is his work; [URL='https://github.com/voodik']GitHub[/URL], [URL='https://oph.mdrjr.net/voodik/S922X/ODROID-N2/Android/']ODROID-N2 builds[/URL]), Hardkernel, MindTheGapps, the CoreELEC and Khadas communities, the ARMSX2/PCSX2, PPSSPP, DuckStation/SwanStation and RetroArch projects, Beelink (stock bootloader and vendor blobs).
+
+[SIZE=5][B]ROM information[/B][/SIZE]
+[B]ROM OS Version:[/B] Android 15
+[B]ROM Kernel:[/B] Linux 4.9.337
+[B]Based On:[/B] LineageOS 22.2 (v1); voodik's LineageOS 22.1 ATV for the ODROID-N2 (v2)
+[B]Status:[/B] Beta
+[B]Current version:[/B] v2 (2026-09-26)
+[B]Created:[/B] 2026-09-25
+[B]Last Updated:[/B] 2026-09-26
+[B]Maintainer:[/B] MKmajster

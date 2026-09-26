@@ -1,0 +1,4 @@
+filegroup {
+    name: "vnd_galilei.txt",
+    srcs: ["vnd_galilei.txt"],
+}

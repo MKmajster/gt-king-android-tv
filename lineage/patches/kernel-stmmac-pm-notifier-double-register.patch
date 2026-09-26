@@ -1,0 +1,19 @@
+stmmac: unregister the static PM notifier before registering it again
+
+stmmac_dvr_probe() registers the file-static suspend_pm_nb on every probe (TX_MONITOR
+block) and never unregisters it when the probe fails. On the GT-King the amlogic
+dwmac-meson probe fails without a PHY and dwmac-generic probes the same device again
+through the "snps,dwmac" compatible: the second register_pm_notifier() links the node
+to itself, every later register_pm_notifier() spins forever and PID 1 hangs ~3.5 s into
+the boot. Unregistering first makes the second registration harmless.
+
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3345,6 +3345,7 @@
+ 	/* galilei: a re-probe (e.g. dwmac-generic after dwmac-meson failed with "No PHY found") must not
+ 	 * register this static block twice - the 2nd registration self-loops the pm notifier chain and
+ 	 * every later register_pm_notifier() spins forever (PID 1 stuck at boot, 2026-09-24). */
++	unregister_pm_notifier(&suspend_pm_nb);
+ 	result = register_pm_notifier(&suspend_pm_nb);
+ 	if (result) {
+ 		unregister_pm_notifier(&suspend_pm_nb);

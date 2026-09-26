@@ -1,0 +1,12 @@
+--- a/drivers/amlogic/watchdog/meson_wdt.c	2026-09-24 22:19:05.804030709 +0200
++++ b/drivers/amlogic/watchdog/meson_wdt.c	2026-09-24 22:19:06.604030751 +0200
+@@ -267,6 +267,9 @@
+ 	}
+ 	if (event == PM_POST_SUSPEND) {
+ 		if (wdev->is_running) {
++			/* the count kept running while disabled: reload it before
++			 * enabling, or the SoC resets ~immediately after resume */
++			reset_watchdog(wdev);
+ 			enable_watchdog(wdev);
+ 			dev_info(wdev->dev,
+ 			 "pm_notify: enable watchdog, event = %lu\n", event);

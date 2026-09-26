@@ -1,0 +1,15 @@
+## Bluetooth
+bluetooth.device.default_name=Beelink GT-King
+bluetooth.profile.hfp.ag.enabled=false
+bluetooth.profile.opp.enabled=false
+bluetooth.profile.pbap.server.enabled=false
+
+## Dolby
+ro.vendor.platform.support.dolbyvision=false
+vendor.media.support.dolbyvision=false
+
+## SOC
+ro.soc.model=AMLS922X
+
+## Wi-Fi
+vendor.bcm_wifi=bcm

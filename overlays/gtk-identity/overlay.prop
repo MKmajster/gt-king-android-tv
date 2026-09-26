@@ -1,0 +1,6 @@
+id=gtk-identity
+name=GT-King PRO: Google TV identity
+version=1.0
+versionCode=1
+author=MKmajster
+description=Shows the box as Android 14 (release, build id, security patch). SDK, model and device untouched.

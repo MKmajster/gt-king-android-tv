@@ -1,0 +1,2 @@
+## Graphics - Mali-G52 (same GPU as A311D / radxa02pro) - from https://github.com/codewalkerster/linux_amlogic_meson_mali/blob/openlinux/ott/u-amlogic/gondul_ion/libGLES_mali_default_8a_32-s-r32p1.so
+vendor/lib/egl/libGLES_mali.so;SYMLINK=vendor/lib/hw/vulkan.amlogic.so|4edfa22b7fad3206be6534eab0215d4c1fcefa41

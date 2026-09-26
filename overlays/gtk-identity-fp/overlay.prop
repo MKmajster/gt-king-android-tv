@@ -1,0 +1,6 @@
+id=gtk-identity-fp
+name=GT-King PRO: certified fingerprint (sabrina)
+version=1.0
+versionCode=1
+author=MKmajster
+description=Opt-in. Spoofs build fingerprint to Chromecast with Google TV 4K Android 14. Remove if GMS/Assistant misbehave.

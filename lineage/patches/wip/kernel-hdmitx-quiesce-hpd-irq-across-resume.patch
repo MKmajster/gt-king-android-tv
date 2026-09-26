@@ -1,0 +1,65 @@
+hdmitx: quiesce HPD handling across early-suspend/late-resume, skip the EDID re-read on resume
+
+On the GT-King (S922X, LineageOS 22.2 kernel 4.9.337) every wake-up locked the SoC up
+(watchdog reboot ~10 s later). Two contributors, both in hdmitx_late_resume():
+ * the HPD irq handler / plug workers touch DWC registers while the core is in soft
+   reset (hw_reset_dbg) or the PLL is off -> the irq is masked and the workers cancelled
+   from early_suspend until the end of late_resume, hpd_lock is held for the whole
+   resume;
+ * with a sink connected the "force to get EDID after resume" DDC read ended in a bus
+   lock-up every time (pstore/ramoops: nothing executes after the EDID parse) -> the
+   re-read is skipped; the EDID from boot or the next HPD event remains valid.
+
+--- a/drivers/amlogic/media/vout/hdmitx/hdmi_tx_20/hdmi_tx_main.c
++++ b/drivers/amlogic/media/vout/hdmitx/hdmi_tx_20/hdmi_tx_main.c
+@@ -226,6 +226,14 @@
+ 
+ 	phdmi->ready = 0;
+ 	phdmi->hpd_lock = 1;
++	/* galilei 2026-09-24: the HPD irq handler and the plug-in/out workers
++	 * poke DWC registers; while the core is in soft reset / PLL off during
++	 * early-suspend and late-resume that hangs the AXI bus (SoC lock-up,
++	 * watchdog reboot). Keep them off until late_resume has finished. */
++	if (phdmi->irq_hpd > 0)
++		disable_irq(phdmi->irq_hpd);
++	cancel_delayed_work_sync(&phdmi->work_hpd_plugin);
++	cancel_delayed_work_sync(&phdmi->work_hpd_plugout);
+ 	hdev->hwop.cntlmisc(hdev, MISC_SUSFLAG, 1);
+ 	usleep_range(10000, 10010);
+ 	phdmi->hwop.cntlmisc(phdmi, MISC_AVMUTE_OP, SET_AVMUTE);
+@@ -299,7 +307,7 @@
+ 	if (info && (hdmitx_is_hdmi_vmode(info->name) == 1))
+ 		phdmi->hwop.cntlmisc(&hdmitx_device, MISC_HPLL_FAKE, 0);
+ 
+-	phdmi->hpd_lock = 0;
++	/* galilei: hpd_lock stays set until the hardware is back (see below) */
+ 
+ 	/* update status for hpd and switch/state */
+ 	hdmitx_device.hpd_state = !!(hdmitx_device.hwop.cntlmisc(&hdmitx_device,
+@@ -310,10 +318,11 @@
+ 	pr_info("hdmitx hpd state: %d\n", hdmitx_device.hpd_state);
+ 	hdmitx_notify_hpd(hdmitx_device.hpd_state);
+ 
+-	/*force to get EDID after resume for Amplifer Power case*/
+-	if (hdmitx_device.hpd_state)
+-		hdmitx_get_edid(phdmi);
+-
++	/* galilei: the "force to get EDID after resume" read is skipped - with a sink
++	 * connected the SoC locked up at the end of that DDC read on every resume
++	 * (pstore: nothing executes after the parse). The EDID read at boot / on the
++	 * next HPD event is kept, an AVR powered up later is handled by hot-plug. */
++	pr_info("hdmitx: late resume: edid re-read skipped (galilei)\n");
+ 	hdmitx_device.hwop.cntlconfig(&hdmitx_device,
+ 		CONF_AUDIO_MUTE_OP, AUDIO_MUTE);
+ 	set_disp_mode_auto();
+@@ -332,6 +341,10 @@
+ 	phdmi->hwop.cntl((struct hdmitx_dev *)h->param,
+ 		HDMITX_EARLY_SUSPEND_RESUME_CNTL, HDMITX_LATE_RESUME);
+ 	phdmi->hwop.cntlmisc(phdmi, MISC_SUSFLAG, 0);
++	/* galilei: re-arm HPD handling only now that the hardware is back */
++	phdmi->hpd_lock = 0;
++	if (phdmi->irq_hpd > 0)
++		enable_irq(phdmi->irq_hpd);
+ 	pr_info(SYS "HDMITX: Late Resume\n");
+ }
+ 

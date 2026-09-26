@@ -1,0 +1,11 @@
+# one package per line; '#' comments. Disabled with pm disable-user (reversible), never uninstalled.
+com.adups.fota
+com.droidlogic.otaupgrade
+beelink.beeappmall
+com.droidlogic.beelinkoperatingmanual
+com.mk.tvbridge.netflix
+com.mk.tvbridge.tvp
+com.mk.tvbridge.chrome
+com.mk.tvbridge.youtube
+com.google.android.youtube.tvmusic
+com.android.dreams.phototable

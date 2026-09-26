@@ -1,0 +1,40 @@
+#*********************************************************************************************************
+#this file is used to store key map table
+# custom_name:	  name of map table
+# custom_code:	  custom code for remote device
+# release_delay	  unit:ms.release will report from kernel to user layer after this period of time
+#			  from press or repeat triggered.
+###PARAS FOR MOUSE MODE:
+# fn_key_scancode: scancode of fn key which used to swith mode
+# cursor_left_scancode: scancode of left key
+# cursor_right_scancode:  scancode of right key
+# cursor_up_scancode: scancode of up key
+# cursor_down_scancode: scancode of down key
+# cursor_ok_scancode: scancode of ok key
+#************************************************************************************************************* 
+custom_name = nec-cursor-12
+custom_code = 0xff00
+release_delay = 80
+
+fn_key_scancode = 0x5c
+cursor_left_scancode = 0x0e
+cursor_right_scancode = 0x1a
+cursor_up_scancode = 0x03
+cursor_down_scancode = 0x02
+cursor_ok_scancode = 0x07
+
+key_begin
+	0x14 704
+	0x59 116
+	0x48 102
+	0x5c 63
+	0x03 103
+	0x02 108
+	0x0e 105
+	0x1a 106
+	0x07 97
+	0x13 139
+	0x01 158
+	0x58 114
+	0x0b 115
+key_end
