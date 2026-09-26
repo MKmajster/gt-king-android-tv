@@ -1,5 +1,7 @@
 # Android 15 TV for Beelink GT-King — release v2, 64-bit (2026-09-26)
 
+Discussion, questions and test reports: [XDA thread](https://xdaforums.com/t/rom-android-15-unofficial-s922x-lineageos-22-2-64-bit-android-tv-for-beelink-gt-king-galilei.4802970/)
+
 v2 moves the box to a **64-bit (arm64 + arm) userspace**: voodik's LineageOS 22.1 Android TV build
 for the ODROID-N2 (same S922X SoC, Mali r51p0 drivers with lib64, Vulkan 1.3) on voodik's 4.9.337
 kernel source with six GT-King patches, the GT-King device tree, AP6275S Wi-Fi/Bluetooth and the

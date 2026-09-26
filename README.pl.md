@@ -20,7 +20,8 @@ Dwie wersje, ten sam łańcuch bootloadera, ta sama procedura wgrywania:
 
 Pobieranie: [GitHub Releases](https://github.com/MKmajster/gt-king-android-tv/releases/latest) ·
 instalacja: [`docs/release/INSTALL.md`](docs/release/INSTALL.md) (po angielsku) ·
-lista zmian i sumy kontrolne: [`docs/release/RELEASE-NOTES.md`](docs/release/RELEASE-NOTES.md)
+lista zmian i sumy kontrolne: [`docs/release/RELEASE-NOTES.md`](docs/release/RELEASE-NOTES.md) ·
+dyskusja i pomoc: [wątek na XDA](https://xdaforums.com/t/rom-android-15-unofficial-s922x-lineageos-22-2-64-bit-android-tv-for-beelink-gt-king-galilei.4802970/)
 
 ## Zrzuty ekranu
 

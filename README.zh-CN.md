@@ -19,7 +19,8 @@ Beelink GT-King（Amlogic **S922X**，4×Cortex-A73 @2.2 GHz + 2×A53，Mali-G52
 
 下载：[GitHub Releases](https://github.com/MKmajster/gt-king-android-tv/releases/latest) ·
 刷机说明：[`docs/release/INSTALL.md`](docs/release/INSTALL.md)（英文） ·
-更新说明与校验和：[`docs/release/RELEASE-NOTES.md`](docs/release/RELEASE-NOTES.md)
+更新说明与校验和：[`docs/release/RELEASE-NOTES.md`](docs/release/RELEASE-NOTES.md) ·
+讨论与支持：[XDA 帖子](https://xdaforums.com/t/rom-android-15-unofficial-s922x-lineageos-22-2-64-bit-android-tv-for-beelink-gt-king-galilei.4802970/)
 
 ## 截图
 

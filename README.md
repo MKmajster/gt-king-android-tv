@@ -20,7 +20,8 @@ Two builds, same bootloader chain, same flashing procedure:
 
 Downloads: [GitHub Releases](https://github.com/MKmajster/gt-king-android-tv/releases/latest) ·
 flashing: [`docs/release/INSTALL.md`](docs/release/INSTALL.md) ·
-release notes and checksums: [`docs/release/RELEASE-NOTES.md`](docs/release/RELEASE-NOTES.md)
+release notes and checksums: [`docs/release/RELEASE-NOTES.md`](docs/release/RELEASE-NOTES.md) ·
+discussion and support: [XDA thread](https://xdaforums.com/t/rom-android-15-unofficial-s922x-lineageos-22-2-64-bit-android-tv-for-beelink-gt-king-galilei.4802970/)
 
 ## Screenshots
 
