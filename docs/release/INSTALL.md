@@ -14,8 +14,9 @@
   next to the SD slot. The USB 3.0 ports are host-only and will not work.
 - The package (both shipped 7z-compressed, unpack with 7-Zip; SHA-256 sums in `SHA256SUMS.txt`):
   **v1** `aml_upgrade_package_galilei-los22.2-gapps.img` (~1.5 GB, LineageOS 22.2, Google apps
-  included) or **v2 (64-bit, recommended for emulation)** `aml_upgrade_package_v2-final.img`
-  (~2.2 GB, Google apps included) — same procedure.
+  included) or **v3 (64-bit, recommended)** `aml_upgrade_package_v3-final.img`
+  (~2.2 GB, Google apps included) — same procedure. (v3 = v2 with the HDMI/S/PDIF/analog audio fix;
+  v2 is no longer offered.)
 - A way to reach burn mode (see step 2). On the stock firmware: *Settings → About → build number ×7 →
   Developer options → USB debugging*, plus `adb` on the PC.
 
@@ -78,7 +79,7 @@ stops at 1.8 s (the A73 cluster clock is never set up) and the box reboots in a 
   see `docs/option1/UART.md`): `py -3 lineage/scripts/serial-console.py --port COMx --break --fix-hook`
   writes the hook into the saved environment and reboots. Please report in the thread if you ever
   needed this.
-- **v2:** once on the lab unit, the first boot after flashing a v2 package came up with the stock
+- **v3 / v2 (64-bit):** once on the lab unit, the first boot after flashing a 64-bit package came up with the stock
   `preboot` (the saved environment had `upgrade_step=2`, so the stock u-boot never restored its
   hooked defaults): it booted the kernel itself with the wrong DTB and the box **switched itself
   off after ~12 s**. The UART `--fix-hook` above fixed it permanently. Symptom check on the UART

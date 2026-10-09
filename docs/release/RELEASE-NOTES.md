@@ -1,3 +1,36 @@
+# Android 15 TV for Beelink GT-King — release v3, 64-bit (2026-10-09)
+
+Discussion, questions and test reports: [XDA thread](https://xdaforums.com/t/rom-android-15-unofficial-s922x-lineageos-22-2-64-bit-android-tv-for-beelink-gt-king-galilei.4802970/)
+
+**v3 is v2 with one fix: HDMI / S/PDIF / analog audio now works.** The v2 device tree left the
+internal audio mux (TOHDMITX) pointing at the wrong source, so the HDMI, S/PDIF and 3.5 mm outputs
+stayed silent while Bluetooth audio — a separate path — worked. v3 sets `i2s2hdmi` in the device
+tree so the mux follows the stream the audio HAL actually plays.
+
+**If you are on v2 and only get sound over Bluetooth, flash v3.**
+
+Nothing else changed. v3 is the verified v2 image with only the device-tree partition replaced; the
+kernel, system, vendor, bootloader and second-stage loader are byte-for-byte identical to v2. The
+flashing procedure, bootloader chain and everything in the v2 notes below still apply.
+
+## Package
+
+| File | Size | SHA-256 |
+|---|---|---|
+| `aml_upgrade_package_v3-final.img` | 2 244 113 164 B | `8d44746973ca7d9a588e638837930a48927af24c6569ddbb7e4f6ca3cfa82b72` |
+
+Same flashing procedure as v2 (Amlogic USB Burning Tool; see INSTALL.md). **v2 is superseded by v3
+and is no longer offered for download** (it has silent HDMI/S/PDIF/analog audio). v1 (32-bit) and the
+stock-restore package are unchanged and still provided below.
+
+## Changelog (v3)
+
+- v3 (2026-10-09): audio fix — `i2s2hdmi = <1>` on the `aml_tdmb` node of the v2 multi-DTB, so the
+  TOHDMITX mux selects the TDM output the audio HAL plays instead of a silent one. Produced as a
+  device-tree swap on the verified v2 image; every other partition is unchanged.
+
+---
+
 # Android 15 TV for Beelink GT-King — release v2, 64-bit (2026-09-26)
 
 Discussion, questions and test reports: [XDA thread](https://xdaforums.com/t/rom-android-15-unofficial-s922x-lineageos-22-2-64-bit-android-tv-for-beelink-gt-king-galilei.4802970/)
@@ -12,6 +45,9 @@ same bootloader chain as v1. v1 (32-bit, LineageOS 22.2, below) stays available.
 | File | Size | SHA-256 |
 |---|---|---|
 | `aml_upgrade_package_v2-final.img` | 2 244 113 164 B | `152503a627b504eaf6eab5a029e8d8c3ba062ea12b41054f4b90023173a2d45c` |
+
+> **Superseded by v3 (above): v2 has silent HDMI/S/PDIF/analog audio and is no longer offered for
+> download. v3 is the same image with the audio fix.**
 
 Kernel `galilei-v2` build #11, vendor M1p, multi-DTB with the v2 partition table (system 3 GiB,
 vendor 768 MiB), Google apps for Android TV (from voodik's build). userdebug, test-keys.
@@ -40,7 +76,8 @@ Upscaling PS2 is beyond the Mali-G52 (1.5x/2x = 20–34 fps).
 - Boot to the Android TV home screen, IR remote, HDMI 1080p60, Wi-Fi 5 GHz auto-connect, ADB root
   over Wi-Fi (userdebug), Bluetooth on/off cycles (AP6275S on UART, patch loaded by the kernel),
   HDMI-CEC service enabled, USB gamepad (hot-plug, also after the screen was off).
-- YouTube / SmartTube: 4K60 VP9 on the hardware decoder, 0 dropped frames; HDMI audio L-PCM 48 kHz.
+- YouTube / SmartTube: 4K60 VP9 on the hardware decoder, 0 dropped frames. (HDMI/S/PDIF/analog
+  audio was silent on v2 — fixed in v3 above; Bluetooth audio worked.)
 - Wi-Fi under sustained load (~28 MB/s transfers of 8 GB files) without firmware traps.
 - Temperatures: 39–40 °C idle, 62–64 °C in PS2 (GPU at 800 MHz), control target 80 °C.
 - Standby: power key = screen off, instant wake; deep sleep is always aborted by Wi-Fi wakeups

@@ -951,6 +951,11 @@
 		 * 4: spdifout_b;
 		 */
 		samesource_sel = <3>;
+		/* 2026-09-30: without this the TOHDMITX mux (EE_AUDIO_TOHDMITX_CTRL0) stays
+		 * on TDMOUT_A and HDMI audio is silent even though hdmitx, routing and
+		 * volumes all look correct; tdm.c reads "i2s2hdmi" and points the mux at
+		 * this TDM on every prepare. Verified live via devmem 0xff642744 = 0x80001190. */
+		i2s2hdmi = <1>;
 	};
 
 	aml_tdmc: tdmc {

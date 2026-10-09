@@ -74,6 +74,14 @@ on property:sys.boot_completed=1
     write /sys/class/thermal/thermal_zone1/trip_point_0_temp 65000
     write /sys/class/thermal/thermal_zone1/trip_point_1_temp 80000
 
+# Wi-Fi country: nothing sets one here (no telephony, no ro.boot.wificountrycode), so cfg80211 stays
+# in world mode "00", where 5 GHz is passive-scan only: the router's 5 GHz BSS was rarely found and
+# the box sat on a busy 2.4 GHz channel (Moonlight: network frame drops every few seconds; after
+# forcing PL: 5 GHz at 351 Mbit/s, 0 % ping loss). Two-letter code, e.g. `setprop
+# persist.vendor.galilei.wifi_country PL` once; unset = world mode as before.
+on property:sys.boot_completed=1 && property:persist.vendor.galilei.wifi_country=*
+    exec_background u:r:shell:s0 root shell -- /system/bin/cmd wifi force-country-code enabled ${persist.vendor.galilei.wifi_country}
+
 service btuart /vendor/bin/btuart-attach /dev/ttyS1
     class hal
     user root
