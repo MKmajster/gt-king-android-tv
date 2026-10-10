@@ -10,13 +10,16 @@ uruchomienie **Androida 15 w wersji Android TV** na tym boxie: drzewo urządzeni
 
 Dwie wersje, ten sam łańcuch bootloadera, ta sama procedura wgrywania:
 
-| | **v1** — LineageOS 22.2 | **v2** — 64-bit |
+| | **v1** — LineageOS 22.2 | **v3** — 64-bit |
 |---|---|---|
 | Przestrzeń użytkownika | 32-bit (armeabi-v7a), jak fabryczny firmware | **arm64 + arm** |
 | Baza | LineageOS 22.2 zbudowany ze źródeł z tym drzewem urządzenia | LineageOS 22.1 ATV od voodika dla ODROID-N2 (ten sam S922X) + kernel, DTB i poprawki vendor dla GT-Kinga |
 | Sterownik GPU | Mali r32p1 (32-bit) | Mali r51p0, Vulkan 1.3, GLES 3.2 |
 | Aplikacje Google | tak (MindTheGapps dla Android TV) | tak |
 | Dla kogo | prosty, lekki Android TV | emulacja (PS2, GameCube/Wii wymagają 64 bitów) |
+
+> **v3** (2026-10-09) to aktualna wersja 64-bit — v2 z poprawką dźwięku HDMI / S-PDIF / jack.
+> v2 (na tych wyjściach cisza, działał tylko dźwięk przez Bluetooth) jest wycofana i nie jest już udostępniana.
 
 Pobieranie: [GitHub Releases](https://github.com/MKmajster/gt-king-android-tv/releases/latest) ·
 instalacja: [`docs/release/INSTALL.md`](docs/release/INSTALL.md) (po angielsku) ·
@@ -29,7 +32,7 @@ dyskusja i pomoc: [wątek na XDA](https://xdaforums.com/t/rom-android-15-unoffic
 |---|---|
 | ![Ekran główny Android TV](docs/screenshots/home.png) | ![Informacje: Android 15, kernel 4.9.337](docs/screenshots/about.png) |
 | ![PlayStation 2: God of War (ARMSX2, 16:9)](docs/screenshots/ps2.jpg) | ![PSP: God of War: Ghost of Sparta (PPSSPP Vulkan 2x)](docs/screenshots/psp.jpg) |
-| ![PlayStation: Crash Bandicoot 3 (SwanStation 5x = 1080p)](docs/screenshots/psx.jpg) | zrzuty z v2, wykonane na boxie przez ADB (1920×1080) |
+| ![PlayStation: Crash Bandicoot 3 (SwanStation 5x = 1080p)](docs/screenshots/psx.jpg) | zrzuty z v3 (64-bit), wykonane na boxie przez ADB (1920×1080) |
 
 ## Co działa
 
@@ -37,7 +40,7 @@ dyskusja i pomoc: [wątek na XDA](https://xdaforums.com/t/rom-android-15-unoffic
 |---|---|
 | System | Interfejs Android 15 TV, kernel 4.9.337 (arm64), userdebug; ADB przez sieć |
 | Wideo | Sprzętowe dekodowanie H.264 / HEVC / VP9 — YouTube i SmartTube odtwarzają 4K60 VP9 bez gubienia klatek; tryby wyjścia 4K są dostępne (nie testowane na telewizorze 4K) |
-| Dźwięk | HDMI L-PCM przez kartę dźwiękową Amlogic „auge” (zestaw DAI trzeba było poprawić w DTS) |
+| Dźwięk | HDMI / S-PDIF / analogowy (jack 3,5 mm) L-PCM przez kartę dźwiękową Amlogic „auge” (v1: zestaw DAI poprawiony w DTS; v3: naprawiony mux TOHDMITX przez `i2s2hdmi` — na v2 te wyjścia milczały) |
 | Wi-Fi / BT | AP6275S (BCM43752) 5 GHz 11ac; Bluetooth 5 (v2: przez zwykły HCI UART z poprawką kernela) |
 | Pilot | Fabryczny pilot na podczerwień z tabelą klawiszy Beelinka; piloty USB/BT, klawiatury, pady (v2: podłączanie w locie działa też po uśpieniu) |
 | Zasilanie | Kontrola temperatury na obu klastrach CPU (fabryczny DTS nigdy nie dławił rdzeni A53), uśpienie z wyłączonym sygnałem HDMI i natychmiastowe wybudzenie (SoC pozostaje aktywny) |
@@ -51,7 +54,7 @@ odrzuca niecertyfikowane urządzenia, wbudowany odbiornik Chromecast nie może s
 działa (używaj ADB przez sieć), Ethernet nie testowany (PHY w testowym egzemplarzu jest uszkodzony
 sprzętowo).
 
-## Emulacja na v2 (zmierzone, telewizor 1080p60)
+## Emulacja na v3 (64-bit, zmierzone, telewizor 1080p60)
 
 | System | Emulator | Wynik |
 |---|---|---|
@@ -60,7 +63,7 @@ sprzętowo).
 | PlayStation | RetroArch SwanStation (5x = 1080p, PGXP, kolor 24-bit, 16:9) | 50/50 fps |
 | SNES / NES | RetroArch Snes9x / FCEUmm z shaderem CRT i run-ahead | pełna prędkość |
 
-PS2 w pełnej prędkości wymaga zablokowania zegara Mali na 800 MHz (v2 robi to przy starcie: sterownik
+PS2 w pełnej prędkości wymaga zablokowania zegara Mali na 800 MHz (v3 robi to przy starcie: sterownik
 bifrost zawsze raportuje obciążenie 0, więc governor zostawał na 399 MHz). Skalowanie rozdzielczości
 PS2 przerasta Mali-G52 (1,5x/2x = 20–34 fps). Nic z tego nie jest możliwe na v1: emulator PS2
 rezerwuje ~8 GB przestrzeni adresowej, a Dolphin istnieje tylko w wersji arm64.
@@ -105,7 +108,7 @@ zatrzymuje się po 1,8 s bez ustawionego zegara klastra A73).
 | `lineage/uboot/gen_galilei_board.py` | Generuje płytę `g12b_galilei_v1` dla u-boota LineageOS (stałe środowisko startowe, bez Ethernetu, bezpieczne dla chainloadu) |
 | `lineage/scripts/` | v1: `setup-tree.sh`, `rebuild-final.sh`, `patch-stock-bl33-env.py`, `gen-privapp-allowlist.py`, `make-gapps-vendor.py`, `make-multi-dtb.py`, `make-packages-with-bootloader.sh`, `postflash-check.sh`; v2: `extract-voodik-vendor.sh`, `v2-kernel-patches.sh`, `v2-build-kernel.sh`, `v2-build-dhd.sh`, `v2-build-dtb.sh`, `v2-make-multidtb.sh`, `v2-make-m1.sh`, `v2-adb-flash.py`; wydanie: `make-release-archives.sh`; konsola szeregowa: `serial-console.py`, `uart-*.py`; pomiary: `sf-fps.sh`, `ps2-bench.sh` |
 | `docs/option1/` | Dokumentacja uruchomienia: `BRINGUP.md` (budowanie ze źródeł), `FLASH.md` (paczki, procedura z konsolą), `UART.md` (piny złącza), `EMMC-SHORT.md`, `HDMI-BOOT.md` |
-| `docs/release/` | `INSTALL.md`, `RELEASE-NOTES.md`, `XDA-thread.bbcode`, `PUBLISH.md` |
+| `docs/release/` | `INSTALL.md`, `RELEASE-NOTES.md`, `XDA-thread.bbcode`, `BEELINK-FORUM.md`, `PUBLISH.md` |
 | `tools/` | `hdmiboot/` (klucz HDMI-boot dla BootROM na Arduino), `cp210x/` (sterownik USB-UART) |
 
 Notatki z fazy badań (po polsku): [`docs/RESEARCH-NOTES-PL.md`](docs/RESEARCH-NOTES-PL.md).
@@ -148,7 +151,7 @@ projektu lub wesprę istniejący — załóż tutaj zgłoszenie (issue) albo nap
 ## Podziękowania
 
 Opiekunowie LineageOS i Amlogic g12-common (drzewo urządzenia v1 dziedziczy ich wspólne drzewo i
-kernel); **voodik** — jego LineageOS ATV dla ODROID-N2 i kernel są bazą v2
+kernel); **voodik** — jego LineageOS ATV dla ODROID-N2 i kernel są bazą v2/v3
 ([GitHub](https://github.com/voodik), [wydania ODROID-N2](https://oph.mdrjr.net/voodik/S922X/ODROID-N2/Android/));
 Hardkernel; MindTheGapps; społeczności CoreELEC i Khadas za wiedzę o S922X/G12B; projekty
 ARMSX2/PCSX2, PPSSPP, DuckStation/SwanStation i RetroArch; Beelink za fabryczny firmware, na którego

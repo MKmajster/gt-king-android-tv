@@ -9,13 +9,16 @@ Beelink GT-King（Amlogic **S922X**，4×Cortex-A73 @2.2 GHz + 2×A53，Mali-G52
 
 两个版本，相同的引导加载链，相同的刷机步骤：
 
-| | **v1** — LineageOS 22.2 | **v2** — 64 位 |
+| | **v1** — LineageOS 22.2 | **v3** — 64 位 |
 |---|---|---|
 | 用户空间 | 32 位（armeabi-v7a），与原厂固件相同 | **arm64 + arm** |
 | 基础 | 使用本设备树从源码编译的 LineageOS 22.2 | voodik 为 ODROID-N2（同为 S922X）制作的 LineageOS 22.1 ATV + GT-King 的内核、DTB 和 vendor 修复 |
 | GPU 驱动 | Mali r32p1（32 位） | Mali r51p0，Vulkan 1.3，GLES 3.2 |
 | Google 应用 | 已包含（MindTheGapps for Android TV） | 已包含 |
 | 适合 | 简洁、轻量的 Android TV | 模拟器（PS2、GameCube/Wii 需要 64 位） |
+
+> **v3**（2026-10-09）是当前的 64 位版本——在 v2 基础上修复了 HDMI / S-PDIF / 模拟（3.5 mm）音频。
+> v2（这些输出无声，仅蓝牙音频可用）已被取代，不再提供下载。
 
 下载：[GitHub Releases](https://github.com/MKmajster/gt-king-android-tv/releases/latest) ·
 刷机说明：[`docs/release/INSTALL.md`](docs/release/INSTALL.md)（英文） ·
@@ -28,7 +31,7 @@ Beelink GT-King（Amlogic **S922X**，4×Cortex-A73 @2.2 GHz + 2×A53，Mali-G52
 |---|---|
 | ![Android TV 主屏幕](docs/screenshots/home.png) | ![关于：Android 15，内核 4.9.337](docs/screenshots/about.png) |
 | ![PlayStation 2：战神（ARMSX2，16:9）](docs/screenshots/ps2.jpg) | ![PSP：战神：斯巴达之魂（PPSSPP Vulkan 2x）](docs/screenshots/psp.jpg) |
-| ![PlayStation：古惑狼 3（SwanStation 5x = 1080p）](docs/screenshots/psx.jpg) | v2 截图，通过 ADB 在盒子上截取（1920×1080） |
+| ![PlayStation：古惑狼 3（SwanStation 5x = 1080p）](docs/screenshots/psx.jpg) | v3（64 位）截图，通过 ADB 在盒子上截取（1920×1080） |
 
 ## 可用功能
 
@@ -36,7 +39,7 @@ Beelink GT-King（Amlogic **S922X**，4×Cortex-A73 @2.2 GHz + 2×A53，Mali-G52
 |---|---|
 | 系统 | Android 15 TV 界面，内核 4.9.337（arm64），userdebug；网络 ADB |
 | 视频 | H.264 / HEVC / VP9 硬件解码——YouTube 和 SmartTube 播放 4K60 VP9 无丢帧；支持 4K 输出模式（尚未在 4K 电视上测试） |
-| 音频 | 通过 Amlogic "auge" 声卡的 HDMI L-PCM（DTS 中的 DAI 配置需要修正） |
+| 音频 | 通过 Amlogic "auge" 声卡的 HDMI / S-PDIF / 模拟（3.5 mm）L-PCM（v1：在 DTS 中修正 DAI 配置；v3：通过 `i2s2hdmi` 修复 TOHDMITX 混音器——v2 上这些输出无声） |
 | Wi-Fi / 蓝牙 | AP6275S（BCM43752）5 GHz 11ac；蓝牙 5（v2：通过普通 HCI UART，并带内核修复） |
 | 遥控器 | 原厂红外遥控器（Beelink 按键表）；USB/蓝牙遥控器、键盘、手柄（v2：待机后也支持热插拔） |
 | 电源 | 两个 CPU 簇均有温控（原厂 DTS 从不限制 A53 核心），待机时关闭 HDMI 信号并可即时唤醒（SoC 保持运行） |
@@ -48,7 +51,7 @@ Beelink GT-King（Amlogic **S922X**，4×Cortex-A73 @2.2 GHz + 2×A53，Mali-G52
 Chromecast 接收端无法注册（需要每台设备独有的证书）；待机不进入深度睡眠；USB ADB 不可用
 （请使用网络 ADB）；以太网未测试（测试机的 PHY 芯片硬件损坏）。
 
-## v2 上的模拟器（实测，1080p60 电视）
+## v3（64 位）上的模拟器（实测，1080p60 电视）
 
 | 平台 | 模拟器 | 结果 |
 |---|---|---|
@@ -57,7 +60,7 @@ Chromecast 接收端无法注册（需要每台设备独有的证书）；待机
 | PlayStation | RetroArch SwanStation（5x = 1080p，PGXP，24 位色，16:9） | 50/50 fps |
 | SNES / NES | RetroArch Snes9x / FCEUmm，CRT 着色器与 run-ahead | 全速 |
 
-PS2 全速运行需要把 Mali 频率固定在 800 MHz（v2 在启动时自动设置：bifrost 驱动报告的负载始终为 0，
+PS2 全速运行需要把 Mali 频率固定在 800 MHz（v3 在启动时自动设置：bifrost 驱动报告的负载始终为 0，
 导致调速器一直停在 399 MHz）。PS2 提升分辨率超出了 Mali-G52 的能力（1.5x/2x = 20–34 fps）。
 这些在 v1 上都无法实现：PS2 模拟器需要预留约 8 GB 地址空间，而 Dolphin 只有 arm64 版本。
 
@@ -97,7 +100,7 @@ GT-King 使用锁定的 2015 版 Amlogic u-boot，其 BL2 包含这块主板的 
 | `lineage/uboot/gen_galilei_board.py` | 为 LineageOS u-boot 生成 `g12b_galilei_v1` 主板配置（固定启动环境、无以太网、适合二级引导） |
 | `lineage/scripts/` | v1：`setup-tree.sh`、`rebuild-final.sh`、`patch-stock-bl33-env.py`、`gen-privapp-allowlist.py`、`make-gapps-vendor.py`、`make-multi-dtb.py`、`make-packages-with-bootloader.sh`、`postflash-check.sh`；v2：`extract-voodik-vendor.sh`、`v2-kernel-patches.sh`、`v2-build-kernel.sh`、`v2-build-dhd.sh`、`v2-build-dtb.sh`、`v2-make-multidtb.sh`、`v2-make-m1.sh`、`v2-adb-flash.py`；发布：`make-release-archives.sh`；串口控制台：`serial-console.py`、`uart-*.py`；测量：`sf-fps.sh`、`ps2-bench.sh` |
 | `docs/option1/` | 移植文档：`BRINGUP.md`（从源码编译）、`FLASH.md`（刷机包、控制台操作）、`UART.md`（排针定义）、`EMMC-SHORT.md`、`HDMI-BOOT.md` |
-| `docs/release/` | `INSTALL.md`、`RELEASE-NOTES.md`、`XDA-thread.bbcode`、`PUBLISH.md` |
+| `docs/release/` | `INSTALL.md`、`RELEASE-NOTES.md`、`XDA-thread.bbcode`、`BEELINK-FORUM.md`、`PUBLISH.md` |
 | `tools/` | `hdmiboot/`（基于 Arduino 的 BootROM HDMI 启动加密狗）、`cp210x/`（USB-UART 驱动） |
 
 研究阶段的笔记（波兰语）：[`docs/RESEARCH-NOTES-PL.md`](docs/RESEARCH-NOTES-PL.md)。
@@ -138,7 +141,7 @@ issue，或在 XDA 上私信我。
 ## 致谢
 
 LineageOS 与 Amlogic g12-common 的维护者（v1 设备树继承了他们的通用设备树和内核）；**voodik**——
-他为 ODROID-N2 制作的 LineageOS ATV 及其内核是 v2 的基础
+他为 ODROID-N2 制作的 LineageOS ATV 及其内核是 v2/v3 的基础
 （[GitHub](https://github.com/voodik)，[ODROID-N2 版本](https://oph.mdrjr.net/voodik/S922X/ODROID-N2/Android/)）；
 Hardkernel；MindTheGapps；CoreELEC 与 Khadas 社区提供的 S922X/G12B 知识；ARMSX2/PCSX2、PPSSPP、
 DuckStation/SwanStation 和 RetroArch 项目；Beelink 的原厂固件——这些版本仍依赖其引导加载程序和

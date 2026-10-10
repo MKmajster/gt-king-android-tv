@@ -10,13 +10,16 @@ packages, the tooling used to get there and the notes of every dead end.
 
 Two builds, same bootloader chain, same flashing procedure:
 
-| | **v1** — LineageOS 22.2 | **v2** — 64-bit |
+| | **v1** — LineageOS 22.2 | **v3** — 64-bit |
 |---|---|---|
 | Userspace | 32-bit (armeabi-v7a), like the stock firmware | **arm64 + arm** |
 | Base | LineageOS 22.2 built from source with this device tree | voodik's LineageOS 22.1 ATV for the ODROID-N2 (same S922X) + GT-King kernel, DTB and vendor fixes |
 | GPU driver | Mali r32p1 (32-bit) | Mali r51p0, Vulkan 1.3, GLES 3.2 |
 | Google apps | included (MindTheGapps for Android TV) | included |
 | Choose it for | a plain, lean Android TV | emulation (PS2, GameCube/Wii need 64-bit) |
+
+> **v3** (2026-10-09) is the current 64-bit build — v2 with the HDMI / S-PDIF / analog audio fix.
+> v2 (silent on those outputs, only Bluetooth audio worked) is superseded and no longer offered.
 
 Downloads: [GitHub Releases](https://github.com/MKmajster/gt-king-android-tv/releases/latest) ·
 flashing: [`docs/release/INSTALL.md`](docs/release/INSTALL.md) ·
@@ -29,7 +32,7 @@ discussion and support: [XDA thread](https://xdaforums.com/t/rom-android-15-unof
 |---|---|
 | ![Android TV home](docs/screenshots/home.png) | ![About: Android 15, kernel 4.9.337](docs/screenshots/about.png) |
 | ![PlayStation 2: God of War (ARMSX2, 16:9)](docs/screenshots/ps2.jpg) | ![PSP: God of War: Ghost of Sparta (PPSSPP Vulkan 2x)](docs/screenshots/psp.jpg) |
-| ![PlayStation: Crash Bandicoot 3 (SwanStation 5x = 1080p)](docs/screenshots/psx.jpg) | v2 screenshots, captured on the box over ADB (1920×1080) |
+| ![PlayStation: Crash Bandicoot 3 (SwanStation 5x = 1080p)](docs/screenshots/psx.jpg) | v3 (64-bit) screenshots, captured on the box over ADB (1920×1080) |
 
 ## What works
 
@@ -37,7 +40,7 @@ discussion and support: [XDA thread](https://xdaforums.com/t/rom-android-15-unof
 |---|---|
 | System | Android 15 TV UI, kernel 4.9.337 (arm64), userdebug; ADB over the network |
 | Video | Hardware H.264 / HEVC / VP9 decode — YouTube and SmartTube play 4K60 VP9 without dropped frames; 4K output modes present (not tested on a 4K TV) |
-| Audio | HDMI L-PCM through the Amlogic "auge" sound card (the DAI set had to be fixed in the DTS) |
+| Audio | HDMI / S-PDIF / analog (3.5 mm) L-PCM through the Amlogic "auge" sound card (v1: DAI set fixed in the DTS; v3: TOHDMITX mux fixed via `i2s2hdmi` — v2 was silent on these outputs) |
 | Wi-Fi / BT | AP6275S (BCM43752) 5 GHz 11ac; Bluetooth 5 (v2: over a plain HCI UART with a kernel fix) |
 | Remote | Stock infrared remote with the Beelink key table; USB/BT remotes, keyboards, gamepads (v2: hot-plug also after standby) |
 | Power | Thermal control on both CPU clusters (the stock DTS never throttled the A53s), standby with the HDMI signal off and instant wake (the SoC stays awake) |
@@ -50,7 +53,7 @@ devices, the Chromecast built-in receiver cannot register (per-device certificat
 deep sleep, ADB over USB does not work (use ADB over the network), Ethernet untested (the test
 unit's PHY is dead in hardware).
 
-## Emulation on v2 (measured, 1080p60 TV)
+## Emulation on v3 (64-bit, measured, 1080p60 TV)
 
 | System | Emulator | Result |
 |---|---|---|
@@ -59,7 +62,7 @@ unit's PHY is dead in hardware).
 | PlayStation | RetroArch SwanStation (5x = 1080p, PGXP, 24-bit colour, 16:9) | 50/50 fps |
 | SNES / NES | RetroArch Snes9x / FCEUmm with CRT shader and run-ahead | full speed |
 
-PS2 at full speed needs the Mali clock pinned at 800 MHz (v2 does this at boot: the devfreq load
+PS2 at full speed needs the Mali clock pinned at 800 MHz (v3 does this at boot: the devfreq load
 reading of the bifrost driver is always 0, so the governor stayed at 399 MHz). PS2 upscaling is
 beyond the Mali-G52 (1.5x/2x = 20–34 fps). None of this is possible on v1: a PS2 emulator reserves
 ~8 GB of address space and Dolphin is arm64-only.
@@ -105,7 +108,7 @@ stops at 1.8 s without the A73 cluster clock set up).
 | `lineage/uboot/gen_galilei_board.py` | Generates the `g12b_galilei_v1` board for the LineageOS u-boot (fixed boot env, no Ethernet, chainload-safe) |
 | `lineage/scripts/` | v1: `setup-tree.sh`, `rebuild-final.sh`, `patch-stock-bl33-env.py`, `gen-privapp-allowlist.py`, `make-gapps-vendor.py`, `make-multi-dtb.py`, `make-packages-with-bootloader.sh`, `postflash-check.sh`; v2: `extract-voodik-vendor.sh`, `v2-kernel-patches.sh`, `v2-build-kernel.sh`, `v2-build-dhd.sh`, `v2-build-dtb.sh`, `v2-make-multidtb.sh`, `v2-make-m1.sh`, `v2-adb-flash.py`; release: `make-release-archives.sh`; serial console: `serial-console.py`, `uart-*.py`; measuring: `sf-fps.sh`, `ps2-bench.sh` |
 | `docs/option1/` | Bring-up documentation: `BRINGUP.md` (build from source), `FLASH.md` (packages, console procedure), `UART.md` (header pinout), `EMMC-SHORT.md`, `HDMI-BOOT.md` |
-| `docs/release/` | `INSTALL.md`, `RELEASE-NOTES.md`, `XDA-thread.bbcode`, `PUBLISH.md` |
+| `docs/release/` | `INSTALL.md`, `RELEASE-NOTES.md`, `XDA-thread.bbcode`, `BEELINK-FORUM.md`, `PUBLISH.md` |
 | `tools/` | `hdmiboot/` (BootROM HDMI-boot dongle on an Arduino), `cp210x/` (USB-UART driver) |
 
 Polish notes from the research phase: [`docs/RESEARCH-NOTES-PL.md`](docs/RESEARCH-NOTES-PL.md).
@@ -135,6 +138,16 @@ bash lineage/scripts/v2-build-dtb.sh && bash lineage/scripts/v2-make-multidtb.sh
 TAG=final bash lineage/scripts/v2-make-m1.sh     # -> aml_upgrade_package_v2-final.img
 ```
 
+The v2 DTS now carries the `i2s2hdmi` audio fix, so a fresh build is what ships as **v3**. An
+existing v2 image can also be turned into v3 by swapping only its device-tree partition, without a
+full rebuild:
+
+```
+python3 lineage/scripts/repack-package-items.py \
+    aml_upgrade_package_v2-final.img aml_upgrade_package_v3-final.img \
+    out/host/linux-x86/bin/aml_image_packer --dtb multi-dtb-v2+i2s2hdmi.img
+```
+
 ## Support
 
 A hobby project, free and open. If it brought your GT-King back from the drawer, you can buy me a
@@ -148,7 +161,7 @@ project or helping with an existing one — open an issue here or send me a PM o
 ## Credits
 
 LineageOS and the Amlogic g12-common maintainers (the v1 device tree inherits their common tree and
-kernel); **voodik** — his LineageOS ATV for the ODROID-N2 and its kernel are the base of v2
+kernel); **voodik** — his LineageOS ATV for the ODROID-N2 and its kernel are the base of v2/v3
 ([GitHub](https://github.com/voodik), [ODROID-N2 builds](https://oph.mdrjr.net/voodik/S922X/ODROID-N2/Android/));
 Hardkernel; MindTheGapps; the CoreELEC and Khadas communities for the S922X/G12B knowledge; the
 ARMSX2/PCSX2, PPSSPP, DuckStation/SwanStation and RetroArch projects; Beelink for the stock firmware
